@@ -1,10 +1,8 @@
-import { auth } from "@/auth";
-
+// Auth removed - returns mock user for compatibility
 export const requireAuthenticatedUser = async () => {
-  const session = await auth();
-  if (!session?.user?.email) {
-    throw new Error("Unauthorized");
-  }
-
-  return session.user;
+  return {
+    id: "user",
+    email: "user@localhost",
+    name: "User"
+  };
 };

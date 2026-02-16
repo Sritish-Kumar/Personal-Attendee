@@ -1,32 +1,18 @@
-import { redirect } from "next/navigation";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
-import { auth, signOut } from "@/auth";
 import MobileNav from "@/components/layout/mobile-nav";
 import SidebarNav from "@/components/layout/sidebar-nav";
 import QueryToast from "@/components/ui/query-toast";
-import SubmitButton from "@/components/ui/submit-button";
-import { isEmailAllowed } from "@/lib/auth/access";
 
 type ProtectedLayoutProps = {
   children: ReactNode;
 };
 
-export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
-  const session = await auth();
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  if (!isEmailAllowed(session.user?.email)) {
-    redirect("/login?error=AccessDenied");
-  }
-
+export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   return (
     <>
-      <MobileNav profileLabel={session.user?.name ?? session.user?.email ?? "Signed in"} />
+      <MobileNav profileLabel="User" />
 
       <main className="app-shell">
         <aside className="app-sidebar">
@@ -40,18 +26,8 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
           <div className="sidebar-footer">
             <div className="profile-row">
               <Image src="/demo-avatar.svg" alt="Profile" className="profile-avatar-image" width={34} height={34} />
-              <p className="sidebar-user">{session.user?.name ?? session.user?.email ?? "Signed in"}</p>
+              <p className="sidebar-user">User</p>
             </div>
-            <form
-              action={async () => {
-                "use server";
-                await signOut({ redirectTo: "/login" });
-              }}
-            >
-              <SubmitButton className="button secondary sidebar-signout" pendingText="Signing out...">
-                Sign out
-              </SubmitButton>
-            </form>
           </div>
         </aside>
 
