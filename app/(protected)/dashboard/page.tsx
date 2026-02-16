@@ -16,6 +16,9 @@ import {
   updateQuickNoteAction
 } from "./actions";
 
+// Force dynamic rendering to avoid Firebase Admin init during build
+export const dynamic = "force-dynamic";
+
 const formatLabel = (value: string) => `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 
 const shiftDateByDays = (dateString: string, days: number) => {
