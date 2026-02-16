@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import MobileNav from "@/components/layout/mobile-nav";
 import SidebarNav from "@/components/layout/sidebar-nav";
@@ -32,7 +32,9 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         </aside>
 
         <section className="app-main">
-          <QueryToast />
+          <Suspense fallback={null}>
+            <QueryToast />
+          </Suspense>
           <div className="page-content">{children}</div>
         </section>
       </main>
