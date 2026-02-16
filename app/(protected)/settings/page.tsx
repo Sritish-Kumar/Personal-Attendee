@@ -15,6 +15,9 @@ import {
   upsertSemesterConfigAction
 } from "./actions";
 
+// Force dynamic rendering to avoid Firebase Admin init during build
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const initialVisibleCount = 3;
   const [semesterConfig, timetableEntries, holidays] = await Promise.all([

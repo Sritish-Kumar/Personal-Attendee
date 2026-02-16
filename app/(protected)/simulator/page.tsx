@@ -4,6 +4,9 @@ import { getSemesterStats } from "@/lib/stats/semester-stats";
 
 import SimulatorClient from "./simulator-client";
 
+// Force dynamic rendering to avoid Firebase Admin init during build
+export const dynamic = "force-dynamic";
+
 export default async function SimulatorPage() {
   const [stats, todayClasses] = await Promise.all([
     getSemesterStats(),

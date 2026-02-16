@@ -6,6 +6,9 @@ import { upsertAttendance } from "@/lib/firestore/attendance";
 import { isHoliday } from "@/lib/firestore/holidays";
 import { listTimetableForDate } from "@/lib/firestore/timetable";
 
+// Force dynamic rendering to avoid Firebase Admin init during build
+export const dynamic = "force-dynamic";
+
 type MarkPageProps = {
   searchParams: Promise<{ auto?: string; subject?: string }>;
 };

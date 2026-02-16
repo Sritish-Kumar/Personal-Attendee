@@ -4,6 +4,9 @@ import { getCalendarMonthView } from "@/lib/calendar/month-view";
 
 import CalendarClient from "./calendar-client";
 
+// Force dynamic rendering to avoid Firebase Admin init during build
+export const dynamic = "force-dynamic";
+
 type CalendarPageProps = {
   searchParams: Promise<{ month?: string }>;
 };
