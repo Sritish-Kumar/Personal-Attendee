@@ -1,11 +1,6 @@
 import { z } from "zod";
 
 const serverEnvSchema = z.object({
-  NEXTAUTH_URL: z.string().url(),
-  NEXTAUTH_SECRET: z.string().min(1),
-  GOOGLE_CLIENT_ID: z.string().min(1),
-  GOOGLE_CLIENT_SECRET: z.string().min(1),
-  ALLOWED_EMAILS: z.string().optional(),
   APP_TIMEZONE: z.string().default("Asia/Kolkata"),
   FIREBASE_PROJECT_ID: z.string().min(1),
   FIREBASE_CLIENT_EMAIL: z.string().email(),
