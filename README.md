@@ -1,242 +1,323 @@
-# Attendee (Step 1 Foundation)
+# 📚 Attendee - Smart Attendance Tracking System
 
-Personal semester attendance tracker built with Next.js App Router, Firebase Firestore, and Google auth.
+A modern, full-stack attendance tracking application built with Next.js 15, Firebase, and NextAuth.js. Perfect for students to track their class attendance, monitor semester statistics, and ensure they meet minimum attendance requirements.
 
-## What is implemented in Step 1
+## ✨ Features
 
-- Next.js App Router scaffold with TypeScript.
-- Auth.js (next-auth) Google sign-in/sign-out flow.
-- Protected routes: `/dashboard`, `/calendar`, `/settings`, `/mark`.
-- Public route: `/login`.
-- Middleware route guard:
-  - Unauthenticated users are redirected from protected routes to `/login`.
-  - Authenticated users are redirected from `/login` to `/dashboard`.
-- Firebase setup:
-  - Browser SDK singleton in `lib/firebase/client.ts`.
-  - Admin SDK singleton in `lib/firebase/admin.ts`.
-- Firestore health check endpoint in `app/api/health/firestore/route.ts`.
-- Runtime env validation with `zod` in `lib/config/env.ts`.
+### 📊 **Dashboard**
+- **Real-time Statistics**: View overall semester attendance percentage, conducted classes, and attended classes
+- **At-Risk Alerts**: Automatic warnings when attendance falls below minimum requirement (default: 75%)
+- **Today's Classes**: Quick view of all classes scheduled for today with instant marking capability
+- **Subject-wise Breakdown**: Detailed table showing attendance stats for each subject
+- **Smart Calculations**: Shows how many classes needed to reach minimum attendance threshold
 
-## What is implemented in Step 2
+### 📅 **Calendar View**
+- **Monthly Calendar**: Visual representation of attendance across the entire month
+- **Color-coded Indicators**: 
+  - 🟢 Green dots for present
+  - 🔴 Red dots for absent
+  - 🔵 Blue for future dates
+  - ⚪ Gray for holidays
+- **Month Navigation**: Easy navigation between months to review past attendance
 
-- Firestore-backed management for:
-  - `timetable` (subject CRUD)
-  - `semesterConfig` (single `current` doc upsert/read)
-  - `holidays` (date-based CRUD)
-- Shared zod validators:
-  - `lib/validators/timetable.ts`
-  - `lib/validators/semester-config.ts`
-  - `lib/validators/holidays.ts`
-- Settings page now includes full management UI:
-  - Semester configuration form
-  - Timetable create/update/delete with day-wise timings per subject
-  - Holiday create/update/delete
-- Server actions with auth guards for every mutation:
-  - `app/(protected)/settings/actions.ts`
-- Read helpers added for next steps:
-  - `listTimetableByWeekday`, `listTimetableForDate`
-  - `isHoliday`, `listHolidaysInRange`
-  - `getSemesterConfig`
+### ✅ **Attendance Marking**
+- **Quick Actions**: Mark individual classes as present or absent
+- **Bulk Operations**: Mark all classes for the day as present with one click
+- **Validation**: Prevents marking attendance for holidays
+- **Real-time Updates**: Instant reflection of changes across all views
 
-## What is implemented in Step 3
+### ⚙️ **Settings & Configuration**
+- **Semester Management**: Configure semester start and end dates
+- **Timetable Setup**: Define your class schedule by weekday
+- **Holiday Management**: Mark individual dates or date ranges as holidays
+- **Subject Configuration**: Add/edit subjects with IDs and names
+- **Minimum Attendance**: Set custom minimum attendance percentage requirement
 
-- Manual attendance marking on `/dashboard`:
-  - Per-subject `Present` / `Absent` actions for today
-  - `Mark All Today Present` bulk action
-- Attendance storage in Firestore collection `attendance` with deterministic uniqueness key:
-  - doc id: `${date}__${subjectId}`
-- Attendance validation:
-  - `lib/validators/attendance.ts`
-- Attendance data layer:
-  - `lib/firestore/attendance.ts`
-- Dashboard server actions:
-  - `app/(protected)/dashboard/actions.ts`
-- Holiday-aware dashboard behavior:
-  - marking disabled when today is a configured holiday
-- Timezone-aware “today” utility:
-  - `lib/date/date.ts` using `APP_TIMEZONE` (default `Asia/Kolkata`)
+### 🔐 **Authentication & Security**
+- **Google OAuth**: Secure sign-in with Google accounts
+- **Email Whitelisting**: Restrict access to specific email addresses
+- **Firestore Security Rules**: Backend data protection with granular permissions
+- **Session Management**: Secure session handling with NextAuth.js
 
-## What is implemented in Step 4
+### 📱 **Modern UI/UX**
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Server Components**: Fast initial page loads with React Server Components
+- **Loading States**: Proper loading indicators and pending states
+- **Error Handling**: User-friendly error messages and validation
+- **Clean Interface**: Minimalist design for better focus and usability
 
-- Semester statistics engine (server-side):
-  - `lib/stats/semester-stats.ts`
-  - Calculates per subject:
-    - conducted classes (timetable + semester window - holidays)
-    - attended classes (only explicit `present` marks)
-    - attendance percentage
-    - required classes to reach `minAttendance`
-  - Calculates overall attendance percentage and risk flag.
-- Dashboard now shows:
-  - overall semester cards
-  - risk badge
-  - subject-wise stats table
-- Added attendance range query helper:
-  - `listAttendanceInRange` in `lib/firestore/attendance.ts`
-- Date helpers for range iteration/comparison:
-  - `compareDateStrings`, `minDateString`, `eachDateInRange` in `lib/date/date.ts`
-- Timezone default switched to:
-  - `APP_TIMEZONE=Asia/Kolkata` in `.env.example`
+## 🛠️ Tech Stack
 
-## What is implemented in Step 5
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Authentication**: [NextAuth.js v5](https://next-auth.js.org/)
+- **Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore)
+- **Validation**: [Zod](https://zod.dev/)
+- **Runtime**: Node.js 18+
+- **Package Manager**: pnpm (recommended) / npm / yarn
 
-- Monthly calendar visualization at `/calendar`:
-  - server-generated month grid
-  - previous/next month navigation
-  - colored subject indicators per date:
-    - green = present
-    - red = absent
-    - gray = holiday
-    - blue = future class
-- Click-to-edit modal on date cells:
-  - shows scheduled subjects for selected date
-  - allows editing attendance status (`present`/`absent`)
-  - blocks edits for holidays and future dates
-- Calendar attendance update server action:
-  - `app/(protected)/calendar/actions.ts`
-  - validates date/subject/schedule before upsert
-  - revalidates `/calendar` and `/dashboard`
-- Calendar month data builder:
-  - `lib/calendar/month-view.ts`
-  - combines timetable + holidays + attendance range data
+## 📋 Prerequisites
 
-## What is implemented in Step 6
+Before you begin, ensure you have the following installed:
 
-- Smart Google Calendar link auto-mark route:
-  - `/mark?auto=true&subject=<subjectId>`
-- Route behavior:
-  - validates query params
-  - resolves today using `APP_TIMEZONE`
-  - blocks marking on holidays
-  - verifies subject is scheduled today
-  - upserts attendance as `present` (duplicate-safe)
-  - redirects to `/dashboard` with success/error message
-- Middleware improvement for login redirects:
-  - preserves full callback URL including query parameters
-  - ensures `/mark?auto=true&subject=...` survives auth redirects
+- **Node.js** 18.x or higher ([Download](https://nodejs.org/))
+- **pnpm** (recommended) or npm
+  ```bash
+  npm install -g pnpm
+  ```
+- **Firebase Account** ([Create one](https://firebase.google.com/))
+- **Google Cloud Project** (for OAuth)
 
-## UX and Access Hardening
+## 🚀 Getting Started
 
-- Loading/disabled states for all form submissions:
-  - shared `SubmitButton` with pending text in `components/ui/submit-button.tsx`
-  - applied across login, dashboard, settings, calendar modal, and sign-out
-- Confirmation dialogs for destructive actions:
-  - shared `ConfirmSubmitButton` in `components/ui/confirm-submit-button.tsx`
-  - applied to delete actions in settings (timetable and holidays)
-- Toast notifications (replacing page banners):
-  - `components/ui/query-toast.tsx`
-  - reads `status/message` query params, shows toast, then cleans URL params
-  - mounted globally in protected layout
-- Stronger single-user restriction:
-  - optional allowlist env var: `ALLOWED_EMAILS` (comma-separated, case-insensitive)
-  - enforced in:
-    - Auth.js `signIn` callback (`auth.ts`)
-    - middleware route guard (`middleware.ts`)
-    - protected layout fallback check (`app/(protected)/layout.tsx`)
-  - login page shows `AccessDenied` message and sign-out option for restricted sessions
+### 1. Clone the Repository
 
-## Bunk Simulator
+```bash
+git clone https://github.com/YOUR-USERNAME/attendee.git
+cd attendee
+```
 
-- New protected route: `/simulator`
-- Includes:
-  - subject-wise bunk simulation (projected % after N additional bunks)
-  - full-day bunk simulation (today's schedule pattern)
-  - maximum safe bunk classes while staying above minimum attendance
-- Simulator does not write attendance data; it is projection-only.
+### 2. Install Dependencies
 
-## Prerequisites
+```bash
+pnpm install
+# or
+npm install
+# or
+yarn install
+```
 
-- Node.js 20+ (22 tested here).
-- pnpm 9+
-- Firebase project
-- Google OAuth client credentials
-- Optional: allowlisted email(s) for single-user lock (`ALLOWED_EMAILS`)
+### 3. Firebase Setup
 
-## Setup
+#### Create a Firebase Project
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Click "Add project"
+3. Follow the setup wizard
+4. Enable **Firestore Database** in the Firebase console
+5. Enable **Authentication** > **Google** sign-in provider
 
-1. Copy env template:
+#### Get Firebase Credentials
+
+**For Client SDK:**
+1. Go to Project Settings > General
+2. Scroll to "Your apps" section
+3. Click on the web icon (</>) to create a web app
+4. Copy the config values (apiKey, authDomain, projectId, appId)
+
+**For Admin SDK:**
+1. Go to Project Settings > Service Accounts
+2. Click "Generate new private key"
+3. Save the JSON file securely (DON'T commit this to git!)
+4. Extract: `project_id`, `client_email`, and `private_key`
+
+### 4. Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Select your project (or create a new one)
+3. Navigate to **APIs & Services** > **Credentials**
+4. Click **Create Credentials** > **OAuth 2.0 Client ID**
+5. Configure OAuth consent screen if prompted
+6. Application type: **Web application**
+7. Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+8. Copy the **Client ID** and **Client Secret**
+
+### 5. Environment Variables
+
+Create a `.env.local` file in the root directory:
 
 ```bash
 cp .env.example .env.local
 ```
 
-2. Fill all values in `.env.local`.
+Edit `.env.local` with your actual values:
 
-3. Install dependencies:
+```env
+# Auth.js
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-super-secret-key-here  # Generate: openssl rand -base64 32
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+ALLOWED_EMAILS=your-email@gmail.com,another@gmail.com  # Comma-separated
+APP_TIMEZONE=Asia/Kolkata  # Or your timezone
 
-```bash
-pnpm install
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+
+# Firebase Client SDK
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 ```
 
-4. Run development server:
+**Important Notes:**
+- Replace all placeholder values with your actual credentials
+- Keep the newline characters (`\n`) in `FIREBASE_PRIVATE_KEY`
+- Never commit `.env.local` to version control
+- Use strong, unique values for `NEXTAUTH_SECRET`
+
+### 6. Deploy Firestore Security Rules
+
+```bash
+# Install Firebase CLI globally
+npm install -g firebase-tools
+
+# Login to Firebase
+firebase login
+
+# Deploy security rules
+firebase deploy --only firestore:rules
+```
+
+### 7. Run Development Server
 
 ```bash
 pnpm dev
+# or
+npm run dev
+# or
+yarn dev
 ```
 
-5. Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Google OAuth configuration
+## 📁 Project Structure
 
-1. In Google Cloud Console, create OAuth 2.0 Client ID (Web).
-2. Add Authorized redirect URI:
-   - `http://localhost:3000/api/auth/callback/google`
-3. Put client ID and secret into `.env.local`:
-   - `GOOGLE_CLIENT_ID`
-   - `GOOGLE_CLIENT_SECRET`
+```
+attendee/
+├── app/
+│   ├── (protected)/          # Protected routes (requires auth)
+│   │   ├── layout.tsx        # Protected layout wrapper
+│   │   ├── dashboard/        # Main dashboard page
+│   │   ├── calendar/         # Calendar view
+│   │   ├── mark/             # Quick attendance marking
+│   │   ├── settings/         # App configuration
+│   │   └── simulator/        # Testing utilities
+│   ├── (public)/             # Public routes
+│   │   └── login/            # Login page
+│   ├── api/
+│   │   ├── auth/             # NextAuth.js routes
+│   │   └── health/           # Health check endpoints
+│   ├── globals.css           # Global styles
+│   ├── layout.tsx            # Root layout
+│   └── page.tsx              # Home page
+├── components/
+│   └── ui/                   # Reusable UI components
+├── lib/
+│   ├── auth/                 # Authentication utilities
+│   ├── calendar/             # Calendar logic
+│   ├── config/               # Configuration
+│   ├── constants/            # Constants
+│   ├── date/                 # Date utilities
+│   ├── firebase/             # Firebase setup
+│   ├── firestore/            # Firestore operations
+│   ├── stats/                # Statistics calculations
+│   └── validators/           # Zod schemas
+├── public/                   # Static assets
+├── scripts/                  # Utility scripts
+├── types/                    # TypeScript type definitions
+├── .env.example              # Environment template
+├── .gitignore                # Git ignore rules
+├── auth.ts                   # NextAuth configuration
+├── firebase.json             # Firebase config
+├── firestore.indexes.json    # Firestore indexes
+├── firestore.rules           # Security rules
+├── middleware.ts             # Next.js middleware
+├── next.config.ts            # Next.js configuration
+├── package.json              # Dependencies
+└── tsconfig.json             # TypeScript config
+```
 
-## Firebase configuration
-
-1. In Firebase project settings, collect Web app keys for:
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-   - `NEXT_PUBLIC_FIREBASE_APP_ID`
-2. Create a service account key and set:
-   - `FIREBASE_PROJECT_ID`
-   - `FIREBASE_CLIENT_EMAIL`
-   - `FIREBASE_PRIVATE_KEY`
-
-`FIREBASE_PRIVATE_KEY` should preserve newlines. If pasted with `\\n`, code converts it automatically.
-
-## Firestore health check
-
-Authenticated users can call:
-
-- `GET /api/health/firestore`
-
-Behavior:
-- Writes a temporary `_healthchecks/probe-*` document
-- Reads it back
-- Deletes it in `finally` (best-effort cleanup)
-
-This endpoint is meant for setup validation and can be removed/restricted further later.
-
-## Firestore security rules
-
-This project is designed so Firestore access happens through server-side Admin SDK code only.
-Client-side Firestore access is intentionally blocked by `firestore.rules`.
-
-Files:
-- `firestore.rules`
-- `firestore.indexes.json`
-- `firebase.json`
-
-Deploy rules:
+## 📜 Available Scripts
 
 ```bash
-npx firebase-tools deploy --only firestore:rules,firestore:indexes --project attendee-7051
+# Development
+pnpm dev              # Start dev server at http://localhost:3000
+
+# Production
+pnpm build            # Build for production
+pnpm start            # Start production server
+
+# Code Quality
+pnpm lint             # Run ESLint
+pnpm typecheck        # TypeScript type checking
+
+# Utilities
+pnpm holidays:one-time-break  # Mark a date range as holiday
 ```
 
-## Step 1 completion checklist
+### Custom Scripts
 
-- [x] App scaffolded with Next.js App Router + TypeScript
-- [x] Firebase Client/Admin SDK modules added
-- [x] Google sign-in/sign-out flow implemented
-- [x] Protected route guard in middleware
-- [x] Placeholder pages created (`/dashboard`, `/calendar`, `/settings`, `/mark`)
-- [x] Firestore health check route added
-- [x] Env validation and template documented
+**Set Holiday Range:**
+```bash
+node scripts/set-holiday-range.mjs 2026-02-10 2026-02-17 "Winter Break"
+```
 
-## Next planned step
+## 🔧 Configuration
 
-Step 7 (optional): Firestore rules/indexes and automated tests (unit + e2e).
+### Semester Settings
+1. Navigate to **Settings** in the app
+2. Set semester start and end dates
+3. Configure minimum attendance percentage (default: 75%)
+
+### Timetable
+1. Go to **Settings** > **Timetable**
+2. Add subjects with IDs and names
+3. Assign subjects to specific days and time slots
+
+### Holidays
+1. Go to **Settings** > **Holidays**
+2. Mark individual dates or ranges as holidays
+3. Use the script for bulk holiday creation
+
+## 🌐 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project on [Vercel](https://vercel.com/)
+3. Configure environment variables in Vercel dashboard
+4. Deploy!
+
+### Other Platforms
+
+Works with any platform supporting Next.js:
+- Netlify
+- Railway
+- DigitalOcean App Platform
+- AWS Amplify
+
+## 🔒 Security
+
+- ✅ Firestore security rules enforce data access control
+- ✅ Email whitelisting restricts unauthorized access
+- ✅ Server-side validation with Zod schemas
+- ✅ Environment variables for sensitive data
+- ✅ NextAuth.js for secure authentication
+- ✅ HTTPS required in production
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is private and for educational purposes.
+
+## 🐛 Issues
+
+Found a bug? Please open an issue on GitHub with:
+- Description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots (if applicable)
+
+## 📧 Support
+
+For questions or support, please create an issue in the repository.
+
+---
+
+**Built with ❤️ using Next.js and Firebase**
