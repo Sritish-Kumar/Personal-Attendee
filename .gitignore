@@ -65,3 +65,5 @@ designs/
 
 # Instructions
 instructions.md
+# Local Netlify folder
+.netlify

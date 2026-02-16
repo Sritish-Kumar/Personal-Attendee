@@ -1,5 +1,5 @@
 import { cert, getApp, getApps, initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, initializeFirestore } from "firebase-admin/firestore";
 
 import { getServerEnv } from "@/lib/config/env";
 
@@ -14,9 +14,20 @@ export const getFirebaseAdminApp = () => {
     credential: cert({
       projectId: serverEnv.FIREBASE_PROJECT_ID,
       clientEmail: serverEnv.FIREBASE_CLIENT_EMAIL,
-      privateKey: serverEnv.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+      privateKey: serverEnv.FIREBASE_PRIVATE_KEY.replace(/^"|"$/g, "").replace(/\\n/g, "\n")
     })
   });
 };
 
-export const getFirestoreAdmin = () => getFirestore(getFirebaseAdminApp());
+let firestoreInitialized = false;
+
+export const getFirestoreAdmin = () => {
+  const app = getFirebaseAdminApp();
+
+  if (!firestoreInitialized) {
+    initializeFirestore(app, { preferRest: true });
+    firestoreInitialized = true;
+  }
+
+  return getFirestore(app);
+};
