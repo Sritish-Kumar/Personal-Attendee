@@ -21,6 +21,20 @@ export const dynamic = "force-dynamic";
 
 const formatLabel = (value: string) => `${value.slice(0, 1).toUpperCase()}${value.slice(1)}`;
 
+const to12HourTime = (time24: string) => {
+  const [hourRaw, minuteRaw] = time24.split(":");
+  const hour = Number(hourRaw);
+  const minute = Number(minuteRaw);
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return time24;
+  }
+
+  const period = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${String(minute).padStart(2, "0")} ${period}`;
+};
+
 const shiftDateByDays = (dateString: string, days: number) => {
   const date = new Date(`${dateString}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
@@ -186,7 +200,7 @@ export default async function DashboardPage() {
                     <div>
                       <h3 style={{ margin: 0 }}>{entry.subjectName}</h3>
                       <p className="muted" style={{ margin: "6px 0 0" }}>
-                        {entry.startTime} - {entry.endTime} | {entry.subjectId}
+                        {to12HourTime(entry.startTime)} - {to12HourTime(entry.endTime)} | {entry.subjectId}
                       </p>
                     </div>
 
